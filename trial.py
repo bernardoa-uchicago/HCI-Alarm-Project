@@ -3,6 +3,9 @@ from tkinter import font
 from datetime import datetime
 import random
 from time import sleep
+from pydub import AudioSegment
+from pydub.playback import play
+import pysine
 
 background = 'black'
 window = tk.Tk()
@@ -46,6 +49,21 @@ def title():
 
     window.mainloop()
 
+
+
+
+
+def play_alarm(alarm_name):
+    if alarm_name == 'provided':
+        alarm = AudioSegment.from_wav("alarm.wav")
+        play(alarm)
+    else:
+        #i just made this up but we can add more
+        pysine.sine(frequency=1000.0, duration=0.2)
+        pysine.sine(frequency=500.0, duration=0.2)
+        pysine.sine(frequency=1000.0, duration=0.2)
+        pysine.sine(frequency=500.0, duration=0.2)
+    
 def instructions(name_text, age_text):
     for widget in window.winfo_children():
         widget.destroy()
@@ -65,5 +83,6 @@ def instructions(name_text, age_text):
 def trial():
     for widget in window.winfo_children():
         widget.destroy()
+
 
 title()
