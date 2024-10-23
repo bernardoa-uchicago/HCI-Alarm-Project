@@ -62,13 +62,13 @@ def generate_sinewave(direction):
         sinewave = SineWave(pitch=55, pitch_per_second=50)
         sinewave.set_pitch(35)
     sinewave.play()  
-    sleep(0.5)
+    sleep(0.3)
       
 def play_alarm(alarm_name):
     if alarm_name == 'provided':
         alarm = AudioSegment.from_wav("alarm.wav")
         play(alarm)
-    else:
+    elif alarm_name == 'new':
         rising_thread = threading.Thread(target=generate_sinewave, args=('rise', ))
         falling_thread = threading.Thread(target=generate_sinewave, args=('fall', ))
 
@@ -77,6 +77,25 @@ def play_alarm(alarm_name):
 
         rising_thread.join()
         falling_thread.join()
+
+def alarm_randomizer(alarm_name):
+    alarm_order = []
+    while len(alarm_order) < 4:  
+        number = random.randint(1, 4)  
+        if number not in alarm_order:  
+            alarm_order.append(number) 
+    for pos in alarm_order:
+        if pos == 1:
+            pass
+        elif pos == 2:
+            pass
+        elif pos == 3:
+            pass
+        elif pos == 4:
+            pass
+    
+
+    
 
 def instructions(name_text, age_text):
     for widget in window.winfo_children():
@@ -88,7 +107,7 @@ def instructions(name_text, age_text):
     Dscrp = tk.Label(window, text='You will hear two alarm sounds in order.\n\nEach sound will be played at a random time between 1 to 2 minutes \nfrom the moment you press [READY] or from the end of the first sound\n\nYou will then vote which sound startled you the most\n\n\nPress [READY] to begin')
     Dscrp.config(font=("Times", 20), background='black', fg='white', pady=10)
 
-    b1 = tk.Button(window, text="READY", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=trial)
+    b1 = tk.Button(window, text="READY", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: play_alarm("new"))
 
     alert.pack()
     Dscrp.pack()
@@ -98,4 +117,4 @@ def trial():
     for widget in window.winfo_children():
         widget.destroy()
 
-play_alarm("other")
+title()
