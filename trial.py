@@ -5,7 +5,12 @@ import random
 from time import sleep
 from pydub import AudioSegment
 from pydub.playback import play
-import pysine
+from pydub.generators import Sine
+import numpy as np
+from pysinewave import SineWave
+import threading
+
+
 
 background = 'black'
 window = tk.Tk()
@@ -49,21 +54,30 @@ def title():
 
     window.mainloop()
 
-
-
-
-
+def generate_sinewave(direction):
+    if direction == 'rise':
+        sinewave = SineWave(pitch=35, pitch_per_second=50)
+        sinewave.set_pitch(55)
+    elif direction == 'fall':
+        sinewave = SineWave(pitch=55, pitch_per_second=50)
+        sinewave.set_pitch(35)
+    sinewave.play()  
+    sleep(0.5)
+      
 def play_alarm(alarm_name):
     if alarm_name == 'provided':
         alarm = AudioSegment.from_wav("alarm.wav")
         play(alarm)
     else:
-        #i just made this up but we can add more
-        pysine.sine(frequency=1000.0, duration=0.2)
-        pysine.sine(frequency=500.0, duration=0.2)
-        pysine.sine(frequency=1000.0, duration=0.2)
-        pysine.sine(frequency=500.0, duration=0.2)
-    
+        rising_thread = threading.Thread(target=generate_sinewave, args=('rise', ))
+        falling_thread = threading.Thread(target=generate_sinewave, args=('fall', ))
+
+        rising_thread.start()
+        falling_thread.start()
+
+        rising_thread.join()
+        falling_thread.join()
+
 def instructions(name_text, age_text):
     for widget in window.winfo_children():
         widget.destroy()
@@ -84,5 +98,4 @@ def trial():
     for widget in window.winfo_children():
         widget.destroy()
 
-
-title()
+play_alarm("other")
