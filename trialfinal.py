@@ -4,7 +4,6 @@ import random
 from time import sleep
 from pydub import AudioSegment
 from pydub.playback import play
-from pydub.generators import Sine
 from pysinewave import SineWave
 import threading
 import math
