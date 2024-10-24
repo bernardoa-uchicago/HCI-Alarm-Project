@@ -19,10 +19,7 @@ window = tk.Tk()
 window.title("Latency Test")
 window.minsize(750, 500)
 window.configure(background=background)
-global result1_string, result2_string
-result1_string = ""
-result2_string = ""
-
+participant_info_array = []
 tones_heard_array = []
 option_chosen_array = []
 
@@ -112,7 +109,7 @@ def rate_frequencies_results_helper(tones_heard, option_chosen):
     else:
         tone_chosen = 'X'
         
-    tones_heard_array.append(tones_heard)
+    tones_heard_array.append(tuple(tones_heard))
     option_chosen_array.append(tone_chosen)
 
     print(tones_heard_array)
@@ -248,8 +245,13 @@ def alarm_randomizer():
     return alarm_order
     
 def instructions(name_text, age_text, condition_text, neurodivergent_text, musician_text):
-    global partipant_info_string
-    partipant_info_string = str(name_text) + ',' + str(age_text) + ',' + str(condition_text) + ',' + str(neurodivergent_text) + ',' + str(musician_text) + ','
+    
+    participant_info_array.append(str(name_text))
+    participant_info_array.append(str(age_text))
+    participant_info_array.append(str(condition_text))
+    participant_info_array.append(str(neurodivergent_text))
+    participant_info_array.append(str(musician_text))
+
     for widget in window.winfo_children():
         widget.destroy()
 
@@ -325,23 +327,37 @@ def trial():
 def save(order_copy, rating1_entry, rating2_entry):
 
     print("\n\nparticipant info:")
-    print (partipant_info_string)
+    print (participant_info_array)
 
     print("trial 1: ")
     print(option_chosen_array)
     
     print("trial 2: ")
     print(f"order: {order_copy}, alarm1 rating: {rating1_entry}, alarm2 rating: {rating2_entry}\n\n")
-
     if order_copy.pop() == 1:
-        t2_res = str(rating1_entry) + ',' + str(rating2_entry)
+        t2_res_1 = str(rating1_entry)
+        t2_res_2 = str(rating2_entry)
     else:
-        t2_res = str(rating2_entry) + ',' + str(rating1_entry)
-
-    tones_heard_str = ', '.join(map(str, tones_heard_array))
-    option_chosen_str = ', '.join(map(str, option_chosen_array))
+        t2_res_2 = str(rating1_entry)
+        t2_res_1 = str(rating2_entry)
 
     results = pd.DataFrame(columns=["Name","Age","Auditory Condition","Neurodiv.","Musician","Tones Heard", "Option Chosen","Provided Rating","New Rating"])
+
+    tones_heard_string = ';'.join([f"({x[0]}, {x[1]})" for x in tones_heard_array])
+    option_chosen_string = ','.join(map(str, option_chosen_array))
+    
+    new_row = {
+        "Name": participant_info_array[0],  
+        "Age": participant_info_array[1],           
+        "Auditory Condition": participant_info_array[2],  
+        "Neurodiv.": participant_info_array[3],   
+        "Musician": participant_info_array[4],   
+        "Tones Heard": tones_heard_array,
+        "Option Chosen": option_chosen_array,
+        "Provided Rating": t2_res_1,
+        "New Rating": t2_res_2
+    }
+    
     print(results)
     exit()
 
