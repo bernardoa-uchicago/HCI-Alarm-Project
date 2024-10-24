@@ -22,7 +22,11 @@ window.configure(background=background)
 global result1_string, result2_string
 result1_string = ""
 result2_string = ""
-trial1_results_array = []
+
+tones_heard_array = []
+option_chosen_array = []
+
+results_dataframe = pd.DataFrame()
 option_chosen = ''
 
 
@@ -64,7 +68,7 @@ def title():
     txt.config(font=("Times", 20), background='black', fg='white', pady=20)
 
 
-    b1 = tk.Button(window, text="CONTINUE", font=('Times', 20, 'bold'), fg='blue', command=lambda: instructions(name_entry.get(), age_entry.get(), condition_entry.get(), neurodivergent_entry.get(), musician_entry.get))
+    b1 = tk.Button(window, text="CONTINUE", font=('Times', 20, 'bold'), fg='blue', command=lambda: instructions(name_entry.get(), age_entry.get(), condition_entry.get(), neurodivergent_entry.get(), musician_entry.get()))
     b3 = tk.Button(window, text='EXIT', font=('Times', 20, 'bold'), fg='red', command=window.destroy)
 
     title_label.pack()
@@ -101,8 +105,18 @@ def frequency_to_pitch_helper(frequency):
 def rate_frequencies_results_helper(tones_heard, option_chosen):
     print(f"pitches played: {tones_heard}")
     print(f"option chosen: {option_chosen}")
-    trial1_results_array.append([tones_heard, option_chosen])
-    print(trial1_results_array)
+    if option_chosen == 'A':
+        tone_chosen = tones_heard[0]
+    elif option_chosen == 'B':
+        tone_chosen = tones_heard[1]
+    else:
+        tone_chosen = 'X'
+        
+    tones_heard_array.append(tones_heard)
+    option_chosen_array.append(tone_chosen)
+
+    print(tones_heard_array)
+    print(option_chosen_array)
     frequency_intensity_trials('')
     
 
@@ -116,7 +130,7 @@ def rate_frequencies_helper(tones_heard):
 
     option_1 = tk.Button(window, text="Tone A", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'A'))
     option_2 = tk.Button(window, text="Tone B", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'B'))
-    option_3 = tk.Button(window, text="They sounded the same", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'C'))
+    option_3 = tk.Button(window, text="They sounded the same", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'X'))
     option_4 = tk.Button(window, text="Redo Last Trial", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda:frequency_intensity_trials(tones_heard))
     tone_selection_label.pack()
 
@@ -127,7 +141,7 @@ def rate_frequencies_helper(tones_heard):
 
 def frequency_intensity_trials(previous_tones):
     
-    if len(trial1_results_array) < 2:
+    if len(option_chosen_array) < 2:
         j = 0
         tones_heard = []
         if previous_tones =='':
@@ -141,7 +155,7 @@ def frequency_intensity_trials(previous_tones):
                 else: 
                     tone_letter = 'B'
 
-                trial_number_label = tk.Label(window, text=f'Trial: {len(trial1_results_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
+                trial_number_label = tk.Label(window, text=f'Trial: {len(option_chosen_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
                 trial_number_label.pack()
 
                 audio_number_label = tk.Label(window, text=f'Tone: {tone_letter}', font=("Times", 70), background='black', fg='white', pady=10)
@@ -166,7 +180,7 @@ def frequency_intensity_trials(previous_tones):
                 tone_letter = 'A'
             else: 
                 tone_letter = 'B'
-            trial_number_label = tk.Label(window, text=f'Trial: {len(trial1_results_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
+            trial_number_label = tk.Label(window, text=f'Trial: {len(option_chosen_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
             trial_number_label.pack()
             audio_number_label = tk.Label(window, text=f'Tone: {tone_letter}', font=("Times", 70), background='black', fg='white', pady=10)
             audio_number_label.pack()
@@ -194,8 +208,7 @@ def frequency_intensity_trials(previous_tones):
 
        
     else:
-       print("Boom af")
-       instructions2("name","age","cond","neur","mus")
+       instructions2()
 
 
 def generate_sinewave(direction):
@@ -235,9 +248,8 @@ def alarm_randomizer():
     return alarm_order
     
 def instructions(name_text, age_text, condition_text, neurodivergent_text, musician_text):
-    global result1_string, result2_string
-    result1_string = result1_string + str(name_text) + ',' + str(age_text) + ',' + str(condition_text) + ',' + str(neurodivergent_text) + ',' + str(musician_text) + ','
-    result2_string = result2_string + str(name_text) + ',' + str(age_text) + ',' + str(condition_text) + ',' + str(neurodivergent_text) + ',' + str(musician_text) + ','
+    global partipant_info_string
+    partipant_info_string = str(name_text) + ',' + str(age_text) + ',' + str(condition_text) + ',' + str(neurodivergent_text) + ',' + str(musician_text) + ','
     for widget in window.winfo_children():
         widget.destroy()
 
@@ -253,10 +265,7 @@ def instructions(name_text, age_text, condition_text, neurodivergent_text, music
     Dscrp.pack()
     b1.pack()
 
-def instructions2(name_text, age_text, condition_text, neurodivergent_text, musician_text):
-    global result1_string, result2_string
-    result1_string = result1_string + str(name_text) + ',' + str(age_text) + ',' + str(condition_text) + ',' + str(neurodivergent_text) + ',' + str(musician_text) + ','
-    result2_string = result2_string + str(name_text) + ',' + str(age_text) + ',' + str(condition_text) + ',' + str(neurodivergent_text) + ',' + str(musician_text) + ','
+def instructions2():
     for widget in window.winfo_children():
         widget.destroy()
 
@@ -293,7 +302,7 @@ def trial():
 
     for widget in window.winfo_children():
         widget.destroy()
-    print("here")
+   
     rating1_label = tk.Label(window, text="Rate the first sound from 1 to 7 on how startling it was.")
     rating1_label.config(font=("Times", 20), background=background, fg='#D3D3D3', pady=5)
     rating1_entry = tk.Entry(window, font=("Arial", 14))
@@ -303,7 +312,7 @@ def trial():
     rating2_entry = tk.Entry(window, font=("Arial", 14))
 
     replay = tk.Button(window, text="RETRY", font=('Times', 20, 'bold'), fg='red', command=trial)
-    ret = tk.Button(window, text="TITLE", font=('Times', 20, 'bold'), fg='black', command=lambda: save(order_copy, rating1_entry, rating2_entry))
+    ret = tk.Button(window, text="Submit Results and Finish Trial", font=('Times', 20, 'bold'), fg='black', command=lambda: save(order_copy, rating1_entry.get(), rating2_entry.get()))
 
     rating1_label.pack()
     rating1_entry.pack()
@@ -314,13 +323,27 @@ def trial():
     window.update()
 
 def save(order_copy, rating1_entry, rating2_entry):
+
+    print("\n\nparticipant info:")
+    print (partipant_info_string)
+
+    print("trial 1: ")
+    print(option_chosen_array)
+    
+    print("trial 2: ")
+    print(f"order: {order_copy}, alarm1 rating: {rating1_entry}, alarm2 rating: {rating2_entry}\n\n")
+
     if order_copy.pop() == 1:
         t2_res = str(rating1_entry) + ',' + str(rating2_entry)
     else:
         t2_res = str(rating2_entry) + ',' + str(rating1_entry)
-    results = pd.DataFrame(columns=["Name","Age","Auditory Condition","Neurodiv.","Musician","Old Rating","New Rating"])
+
+    tones_heard_str = ', '.join(map(str, tones_heard_array))
+    option_chosen_str = ', '.join(map(str, option_chosen_array))
+
+    results = pd.DataFrame(columns=["Name","Age","Auditory Condition","Neurodiv.","Musician","Tones Heard", "Option Chosen","Provided Rating","New Rating"])
     print(results)
-    title()
+    exit()
 
 title()
 #frequency_intensity_trials()
