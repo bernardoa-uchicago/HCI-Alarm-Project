@@ -84,7 +84,53 @@ def title():
 
     window.mainloop()
 
-def instructions(name_text, age_text):
+def generate_sinewave(direction):
+    if direction == 'rise':
+        sinewave = SineWave(pitch=35, pitch_per_second=50)
+        sinewave.set_pitch(55)
+    elif direction == 'fall':
+        sinewave = SineWave(pitch=55, pitch_per_second=50)
+        sinewave.set_pitch(35)
+    sinewave.play()  
+    sleep(0.7)
+    sinewave.stop()
+      
+def play_alarm(alarm_name):
+
+    #logic to set alarm 
+    if alarm_name == 'provided':
+        alarm = AudioSegment.from_wav("alarm.wav")
+        play(alarm)
+        sleep(5)
+        print("old alarm done!")
+    elif alarm_name == 'new':
+        rising_thread = threading.Thread(target=generate_sinewave, args=('rise', ))
+        falling_thread = threading.Thread(target=generate_sinewave, args=('fall', ))
+
+        rising_thread.start()
+        falling_thread.start()
+
+        rising_thread.join()
+        falling_thread.join()
+        print("new alarm done!")
+        sleep(5)
+
+def alarm_randomizer():
+    alarm_order = []
+    while len(alarm_order) < 2:  
+        number = random.randint(1, 2)  
+        if number not in alarm_order:  
+            alarm_order.append(number) 
+    print("DEBUG ORDER OF TESTS:")
+    print(alarm_order)
+    for pos in alarm_order:
+        if pos == 1:
+            play_alarm("provided")
+        elif pos == 2:
+            play_alarm("new")
+    
+
+def instructions(name_text, age_text, condition_text, neurodivergent_text, musician_text):
     for widget in window.winfo_children():
         widget.destroy()
 
@@ -94,7 +140,7 @@ def instructions(name_text, age_text):
     Dscrp = tk.Label(window, text='You will hear two alarm sounds in order.\n\nEach sound will be played at a random time between 1 to 2 minutes \nfrom the moment you press [READY] or from the end of the first sound\n\nYou will then vote which sound startled you the most\n\n\nPress [READY] to begin')
     Dscrp.config(font=("Times", 20), background='black', fg='white', pady=10)
 
-    b1 = tk.Button(window, text="READY", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: ())
+    b1 = tk.Button(window, text="READY", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: alarm_randomizer())
 
     alert.pack()
     Dscrp.pack()
