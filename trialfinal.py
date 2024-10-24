@@ -10,6 +10,7 @@ import numpy as np
 from pysinewave import SineWave
 import threading
 from subprocess import call
+import math
 
 
 background = 'black'
@@ -17,6 +18,8 @@ window = tk.Tk()
 window.title("Latency Test")
 window.minsize(750, 500)
 window.configure(background=background)
+trial1_results_array = []
+option_chosen = ''
 
 
 def title():
@@ -75,14 +78,117 @@ def title():
     box5_label.place(x=300, y=300)
     musician_entry.place(x=300, y=350)
    
-
-
     txt.place(x=170, y=400)
 
     b1.place(x=200, y=450)
     b3.place(x=450, y=450)
 
     window.mainloop()
+
+
+def frequency_to_pitch_helper(frequency):
+    #the only reason this exists is because the pysinewave library doesnt include an easy way to play one frequency and uses its own pitch unit
+    pitch = 12 * math.log2(frequency / 440) + 9
+    return pitch
+
+def rate_frequencies_results_helper(tones_heard, option_chosen):
+    print(f"pitches played: {tones_heard}")
+    print(f"option chosen: {option_chosen}")
+    trial1_results_array.append([tones_heard, option_chosen])
+    print(trial1_results_array)
+    frequency_intensity_trials('')
+    
+
+def rate_frequencies_helper(tones_heard):
+    print("\n\nNEXT TRIAL\n\n")
+    for widget in window.winfo_children():
+        widget.destroy()
+    window.update()  
+    
+    tone_selection_label = tk.Label(window, text=f'Which tone sounded louder?\nA, B, or were they the same volume?', font=("Times", 70), background='black', fg='white', pady=10)
+
+    option_1 = tk.Button(window, text="Tone A", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'A'))
+    option_2 = tk.Button(window, text="Tone B", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'B'))
+    option_3 = tk.Button(window, text="They sounded the same", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: rate_frequencies_results_helper(tones_heard, 'C'))
+    option_4 = tk.Button(window, text="Redo Last Trial", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda:frequency_intensity_trials(tones_heard))
+    tone_selection_label.pack()
+
+    option_1.pack()
+    option_2.pack()
+    option_3.pack()
+    option_4.pack()
+
+def frequency_intensity_trials(previous_tones):
+    
+    if len(trial1_results_array) < 20:
+        j = 0
+        tones_heard = []
+        if previous_tones =='':
+            while j < 2: 
+                for widget in window.winfo_children():
+                    widget.destroy()
+
+                #Display the trial number as a letter for easier distinction
+                if j == 0:
+                    tone_letter = 'A'
+                else: 
+                    tone_letter = 'B'
+
+                trial_number_label = tk.Label(window, text=f'Trial: {len(trial1_results_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
+                trial_number_label.pack()
+
+                audio_number_label = tk.Label(window, text=f'Tone: {tone_letter}', font=("Times", 70), background='black', fg='white', pady=10)
+                audio_number_label.pack()
+
+                window.update()   
+
+                #actual logic of the pitch selection 
+                pitch = round(random.randint(40,12040))
+                tones_heard.append(pitch)
+                sinewave = SineWave(pitch = frequency_to_pitch_helper(pitch))
+                sinewave.play()
+                sleep(3)
+                sinewave.stop()
+                sleep(3)
+                j += 1
+        else:
+            for widget in window.winfo_children():
+                    widget.destroy()
+            #Display the trial number as a letter for easier distinction
+            if j == 0:
+                tone_letter = 'A'
+            else: 
+                tone_letter = 'B'
+            trial_number_label = tk.Label(window, text=f'Trial: {len(trial1_results_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
+            trial_number_label.pack()
+            audio_number_label = tk.Label(window, text=f'Tone: {tone_letter}', font=("Times", 70), background='black', fg='white', pady=10)
+            audio_number_label.pack()
+
+            window.update()   
+
+            #play first previous tone
+            sinewave = SineWave(pitch = frequency_to_pitch_helper(previous_tones[0]))
+            sinewave.play()
+            sleep(3)
+            sinewave.stop()
+            sleep(3)
+
+            #play second previous tone 
+            sinewave = SineWave(pitch = frequency_to_pitch_helper(previous_tones[1]))
+            sinewave.play()
+            sleep(3)
+            sinewave.stop()
+            sleep(3)
+
+            tones_heard = previous_tones
+
+
+        rate_frequencies_helper(tones_heard)
+
+       
+    else:
+        print("done!")
+
 
 def generate_sinewave(direction):
     if direction == 'rise':
@@ -96,7 +202,6 @@ def generate_sinewave(direction):
     sinewave.stop()
       
 def play_alarm(alarm_name):
-
     #logic to set alarm 
     if alarm_name == 'provided':
         alarm = AudioSegment.from_wav("alarm.wav")
@@ -137,10 +242,10 @@ def instructions(name_text, age_text, condition_text, neurodivergent_text, music
     alert = tk.Label(window, text="READ CAREFULLY")
     alert.config(font=("Times", 35, "bold"), background='black', fg='red')
     
-    Dscrp = tk.Label(window, text='You will hear two alarm sounds in order.\n\nEach sound will be played at a random time between 1 to 2 minutes \nfrom the moment you press [READY] or from the end of the first sound\n\nYou will then vote which sound startled you the most\n\n\nPress [READY] to begin')
+    Dscrp = tk.Label(window, text='You will hear two different tones, 3 seconds apart.\nYour task will be to select the tone sounded louder,\nor "same" if they sounded the same volume\nThe trial will repeat 20 times.\n Press [READY] to begin')
     Dscrp.config(font=("Times", 20), background='black', fg='white', pady=10)
 
-    b1 = tk.Button(window, text="READY", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: alarm_randomizer())
+    b1 = tk.Button(window, text="READY", font=('Times', 40, 'bold'), pady=30, padx=40, fg='green', command=lambda: frequency_intensity_trials(''))
 
     alert.pack()
     Dscrp.pack()
@@ -151,3 +256,4 @@ def trial():
         widget.destroy()
 
 title()
+#frequency_intensity_trials()
