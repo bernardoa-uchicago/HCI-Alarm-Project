@@ -16,14 +16,15 @@ import math
 
 background = 'black'
 window = tk.Tk()
-window.title("Latency Test")
+window.title("Alarm Test")
 window.minsize(750, 500)
 window.configure(background=background)
-participant_info_array = []
+global trial1_array
+trial1_array = []
 tones_heard_array = []
 option_chosen_array = []
 
-results_dataframe = pd.DataFrame()
+results_dataframe = pd.DataFrame(columns=["Name","Age","Condition","Neurodivergent","Musician","Frequencies Played","Prefered Frequency","Old Rating","New Rating"])
 option_chosen = ''
 
 
@@ -100,6 +101,7 @@ def frequency_to_pitch_helper(frequency):
     return pitch
 
 def rate_frequencies_results_helper(tones_heard, option_chosen):
+    global trial1_array
     print(f"pitches played: {tones_heard}")
     print(f"option chosen: {option_chosen}")
     if option_chosen == 'A':
@@ -107,13 +109,16 @@ def rate_frequencies_results_helper(tones_heard, option_chosen):
     elif option_chosen == 'B':
         tone_chosen = tones_heard[1]
     else:
-        tone_chosen = 'X'
+        tone_chosen = 0
         
-    tones_heard_array.append(tuple(tones_heard))
-    option_chosen_array.append(tone_chosen)
+    trial1_array.append(tuple(tones_heard))
+    trial1_array.append(tone_chosen)
+    trial1_array.append(0)
+    trial1_array.append(0)
+    print(trial1_array)
+    results_dataframe.loc[len(results_dataframe)] = trial1_array
+    trial1_array = trial1_array[:5]
 
-    print(tones_heard_array)
-    print(option_chosen_array)
     frequency_intensity_trials('')
     
 
@@ -137,8 +142,7 @@ def rate_frequencies_helper(tones_heard):
     option_4.pack()
 
 def frequency_intensity_trials(previous_tones):
-    
-    if len(option_chosen_array) < 20:
+    if len(results_dataframe) < 2:
         j = 0
         tones_heard = []
         if previous_tones =='':
@@ -152,7 +156,7 @@ def frequency_intensity_trials(previous_tones):
                 else: 
                     tone_letter = 'B'
 
-                trial_number_label = tk.Label(window, text=f'Trial: {len(option_chosen_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
+                trial_number_label = tk.Label(window, text=f'Trial: {len(results_dataframe) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
                 trial_number_label.pack()
 
                 audio_number_label = tk.Label(window, text=f'Tone: {tone_letter}', font=("Times", 70), background='black', fg='white', pady=10)
@@ -245,12 +249,14 @@ def alarm_randomizer():
     return alarm_order
     
 def instructions(name_text, age_text, condition_text, neurodivergent_text, musician_text):
-    
-    participant_info_array.append(str(name_text))
-    participant_info_array.append(str(age_text))
-    participant_info_array.append(str(condition_text))
-    participant_info_array.append(str(neurodivergent_text))
-    participant_info_array.append(str(musician_text))
+    global trial1_array
+    print(trial1_array)
+    trial1_array.append(str(name_text))
+    trial1_array.append(str(age_text))
+    trial1_array.append(str(condition_text))
+    trial1_array.append(str(neurodivergent_text))
+    trial1_array.append(str(musician_text))
+    print(trial1_array)
 
     for widget in window.winfo_children():
         widget.destroy()
@@ -268,6 +274,7 @@ def instructions(name_text, age_text, condition_text, neurodivergent_text, music
     b1.pack()
 
 def instructions2():
+    print(results_dataframe)
     for widget in window.winfo_children():
         widget.destroy()
 
@@ -325,41 +332,18 @@ def trial():
     window.update()
 
 def save(order_copy, rating1_entry, rating2_entry):
-
-    print("\n\nparticipant info:")
-    print (participant_info_array)
-
-    print("trial 1: ")
-    print(option_chosen_array)
-    
     print("trial 2: ")
     print(f"order: {order_copy}, alarm1 rating: {rating1_entry}, alarm2 rating: {rating2_entry}\n\n")
     if order_copy.pop() == 1:
-        t2_res_1 = str(rating1_entry)
-        t2_res_2 = str(rating2_entry)
+        for i in range(len(results_dataframe)-2, len(results_dataframe)):
+            results_dataframe.loc[i, "Old Rating"] = rating1_entry
+            results_dataframe.loc[i, "New Rating"] = rating2_entry
     else:
-        t2_res_2 = str(rating1_entry)
-        t2_res_1 = str(rating2_entry)
+        for i in range(len(results_dataframe)-2, len(results_dataframe)):
+            results_dataframe.loc[i, "Old Rating"] = rating2_entry
+            results_dataframe.loc[i, "New Rating"] = rating1_entry
 
-    results = pd.DataFrame(columns=["Name","Age","Auditory Condition","Neurodiv.","Musician","Tones Heard", "Option Chosen","Provided Rating","New Rating"])
-
-    tones_heard_string = ';'.join([f"({x[0]}, {x[1]})" for x in tones_heard_array])
-    option_chosen_string = ','.join(map(str, option_chosen_array))
-
-    new_row = {
-        "Name": participant_info_array[0],  
-        "Age": participant_info_array[1],           
-        "Auditory Condition": participant_info_array[2],  
-        "Neurodiv.": participant_info_array[3],   
-        "Musician": participant_info_array[4],   
-        "Tones Heard": tones_heard_array,
-        "Option Chosen": option_chosen_array,
-        "Provided Rating": t2_res_1,
-        "New Rating": t2_res_2
-    }
-    
-    print(results)
-    exit()
+    results_dataframe.to_csv("results.csv", mode='a', index=True, header=False)
+    title()
 
 title()
-#frequency_intensity_trials()
