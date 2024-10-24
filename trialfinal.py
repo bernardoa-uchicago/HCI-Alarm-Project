@@ -1,31 +1,25 @@
 import tkinter as tk
-from tkinter import font
-from datetime import datetime
 import pandas as pd
 import random
 from time import sleep
 from pydub import AudioSegment
 from pydub.playback import play
 from pydub.generators import Sine
-import numpy as np
 from pysinewave import SineWave
 import threading
-from subprocess import call
 import math
 
 
 background = 'black'
 window = tk.Tk()
-window.title("Alarm Test")
+window.title("Beep Beep Trials")
 window.minsize(750, 500)
 window.configure(background=background)
 global trial1_array
 trial1_array = []
 tones_heard_array = []
-option_chosen_array = []
 
 results_dataframe = pd.DataFrame(columns=["Name","Age","Condition","Neurodivergent","Musician","Frequencies Played","Prefered Frequency","Old Rating","New Rating"])
-option_chosen = ''
 
 
 def title():
@@ -181,7 +175,7 @@ def frequency_intensity_trials(previous_tones):
                 tone_letter = 'A'
             else: 
                 tone_letter = 'B'
-            trial_number_label = tk.Label(window, text=f'Trial: {len(option_chosen_array) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
+            trial_number_label = tk.Label(window, text=f'Trial: {len(results_dataframe) + 1} of 20', font=("Times", 70), background='black', fg='white', pady=10)
             trial_number_label.pack()
             audio_number_label = tk.Label(window, text=f'Tone: {tone_letter}', font=("Times", 70), background='black', fg='white', pady=10)
             audio_number_label.pack()
