@@ -138,7 +138,7 @@ def rate_frequencies_helper(tones_heard):
 
 def frequency_intensity_trials(previous_tones):
     
-    if len(option_chosen_array) < 2:
+    if len(option_chosen_array) < 20:
         j = 0
         tones_heard = []
         if previous_tones =='':
@@ -345,7 +345,7 @@ def save(order_copy, rating1_entry, rating2_entry):
 
     tones_heard_string = ';'.join([f"({x[0]}, {x[1]})" for x in tones_heard_array])
     option_chosen_string = ','.join(map(str, option_chosen_array))
-    
+
     new_row = {
         "Name": participant_info_array[0],  
         "Age": participant_info_array[1],           
