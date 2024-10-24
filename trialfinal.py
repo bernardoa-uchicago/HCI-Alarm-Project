@@ -337,6 +337,7 @@ def save(order_copy, rating1_entry, rating2_entry):
             results_dataframe.loc[i, "New Rating"] = rating1_entry
 
     results_dataframe.to_csv("results.csv", mode='a', index=True, header=False)
+    results_dataframe = pd.DataFrame(columns=["Name","Age","Condition","Neurodivergent","Musician","Frequencies Played","Prefered Frequency","Old Rating","New Rating"])
     title()
 
 title()
