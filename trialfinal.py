@@ -341,11 +341,7 @@ def save(order_copy, rating1_entry, rating2_entry):
         t2_res_2 = str(rating1_entry)
         t2_res_1 = str(rating2_entry)
 
-    results = pd.DataFrame(columns=["Name","Age","Auditory Condition","Neurodiv.","Musician","Tones Heard", "Option Chosen","Provided Rating","New Rating"])
-
-    tones_heard_string = ';'.join([f"({x[0]}, {x[1]})" for x in tones_heard_array])
-    option_chosen_string = ','.join(map(str, option_chosen_array))
-
+    print("\n\nFINAL RESULTS\n\n")
     new_row = {
         "Name": participant_info_array[0],  
         "Age": participant_info_array[1],           
@@ -358,7 +354,7 @@ def save(order_copy, rating1_entry, rating2_entry):
         "New Rating": t2_res_2
     }
     
-    print(results)
+    print(new_row)
     exit()
 
 title()
